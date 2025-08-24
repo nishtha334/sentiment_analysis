@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Review Sentiment Analyzer</h2>
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.csv_file.label(class="form-label") }}
+                            {{ form.csv_file(class="form-control") }}
+                            <div class="form-text">Upload CSV with review data</div>
+                        </div>
+                        <div class="d-grid">
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if sentiment %}
+            <!-- Sentiment Analysis Results -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">
+                        Sentiment Analysis 
+                        {% if sentiment.using_ratings %}(Based on Ratings){% else %}(AI Prediction){% endif %}
+                    </h3>
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-md-4">
+                            <div class="display-4 text-success">{{ sentiment.positive_percent }}%</div>
+                            <p class="text-muted">
+                                {% if sentiment.using_ratings %}4-5★ Positive{% else %}Positive{% endif %}
+                            </p>
+                        </div>
+                        {% if sentiment.using_ratings %}
+                        <div class="col-md-4">
+                            <div class="display-4 text-warning">{{ sentiment.neutral_percent }}%</div>
+                            <p class="text-muted">3★ Neutral</p>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-4">
+                            <div class="display-4 text-danger">{{ sentiment.negative_percent }}%</div>
+                            <p class="text-muted">
+                                {% if sentiment.using_ratings %}1-2★ Negative{% else %}Negative{% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Sample Reviews -->
+                    <div class="row">
+                        <div class="col-md-{% if sentiment.using_ratings %}4{% else %}6{% endif %}">
+                            <div class="card bg-light-success border-success mb-3">
+                                <div class="card-header bg-success text-white">
+                                    <i class="fas fa-smile me-2"></i>Positive Reviews
+                                </div>
+                                <div class="card-body">
+                                    {% if sentiment.sample_positive %}
+                                        {% for review in sentiment.sample_positive %}
+                                        <div class="mb-3 p-2 bg-white rounded">
+                                            <p class="mb-0">{{ review }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted">No positive reviews found</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if sentiment.using_ratings %}
+                        <div class="col-md-4">
+                            <div class="card bg-light-warning border-warning mb-3">
+                                <div class="card-header bg-warning text-white">
+                                    <i class="fas fa-meh me-2"></i>Neutral Reviews
+                                </div>
+                                <div class="card-body">
+                                    {% if sentiment.sample_neutral %}
+                                        {% for review in sentiment.sample_neutral %}
+                                        <div class="mb-3 p-2 bg-white rounded">
+                                            <p class="mb-0">{{ review }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted">No neutral reviews found</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="col-md-{% if sentiment.using_ratings %}4{% else %}6{% endif %}">
+                            <div class="card bg-light-danger border-danger mb-3">
+                                <div class="card-header bg-danger text-white">
+                                    <i class="fas fa-frown me-2"></i>Negative Reviews
+                                </div>
+                                <div class="card-body">
+                                    {% if sentiment.sample_negative %}
+                                        {% for review in sentiment.sample_negative %}
+                                        <div class="mb-3 p-2 bg-white rounded">
+                                            <p class="mb-0">{{ review }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <p class="text-muted">No negative reviews found</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if rating_stats %}
+            <!-- Rating Analysis -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Rating Distribution</h3>
+                    <div class="text-center mb-3">
+                        <div class="display-4 text-warning">{{ rating_stats.average }}/5</div>
+                        <p class="text-muted">Average Rating</p>
+                    </div>
+                    
+                    <div class="rating-distribution">
+                        {% for stars, count in rating_stats.distribution.items() %}
+                        <div class="row align-items-center mb-2">
+                            <div class="col-1 text-end">
+                                {{ stars }} ★
+                            </div>
+                            <div class="col-8">
+                                <div class="progress">
+                                    <div class="progress-bar 
+                                        {% if stars >= 4 %}bg-success
+                                        {% elif stars == 3 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: {{ (count/sentiment.total)*100 }}%"
+                                        aria-valuenow="{{ count }}" 
+                                        aria-valuemin="0" 
+                                        aria-valuemax="{{ sentiment.total }}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 text-muted">
+                                {{ count }} ({{ ((count/sentiment.total)*100)|round(1) }}%)
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if plot_url %}
+            <!-- Sentiment Trend -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Sentiment Trend Over Time</h3>
+                    {% if time_analysis %}
+                    <div class="row mb-3 text-center">
+                        <div class="col-md-4">
+                            <div class="h5">Time Period</div>
+                            <p>{{ time_analysis.time_period }}</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h5">Duration</div>
+                            <p>{{ time_analysis.period_weeks }} weeks</p>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="h5">Recent Positivity</div>
+                            <p>{{ (time_analysis.recent_positive * 100)|round(1) }}% (30 days)</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <img src="data:image/png;base64,{{ plot_url }}" class="img-fluid rounded">
+                    <div class="text-center mt-2 text-muted">
+                        <small>Showing sentiment trend over time</small>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

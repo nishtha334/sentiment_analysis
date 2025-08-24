@@ -1,0 +1,59 @@
+/* Custom styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+}
+
+.form-control-lg {
+  padding: 1rem 1.25rem;
+  font-size: 1.05rem;
+}
+
+/* Sentiment icons */
+.fa-smile, .fa-frown, .fa-meh {
+  transition: transform 0.3s ease;
+}
+
+.fa-smile:hover, .fa-frown:hover, .fa-meh:hover {
+  transform: scale(1.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 2rem !important;
+  }
+}
+
+/* Sentiment Cards */
+.bg-light-success {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+.bg-light-danger {
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .display-4 {
+      font-size: 2.5rem;
+  }
+}
+
+/* Chart container */
+.img-fluid.rounded {
+  border: 1px solid #eee;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}

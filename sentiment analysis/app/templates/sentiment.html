@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card shadow-sm border-0 rounded-3">
+      <div class="card-body p-4 p-md-5">
+        <h1 class="text-center mb-4">Sentiment Analyzer</h1>
+        
+        <form method="POST" class="mb-4">
+          {{ form.hidden_tag() }}
+          
+          <div class="mb-3">
+            {{ form.review.label(class="form-label visually-hidden") }}
+            {{ form.review(class="form-control form-control-lg" + (" is-invalid" if form.review.errors else ""), 
+                          rows=6, placeholder="Enter your text here to analyze sentiment...") }}
+            {% for error in form.review.errors %}
+              <div class="invalid-feedback">{{ error }}</div>
+            {% endfor %}
+          </div>
+          
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              Analyze <i class="fas fa-chart-bar ms-2"></i>
+            </button>
+          </div>
+        </form>
+        
+        {% if sentiment %}
+          <div class="result p-4 rounded-3 bg-light border">
+            <h3 class="h4 mb-3">Analysis Result:</h3>
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                {% if sentiment == 'Positive' %}
+                  <i class="fas fa-smile text-success fa-3x"></i>
+                {% elif sentiment == 'Negative' %}
+                  <i class="fas fa-frown text-danger fa-3x"></i>
+                {% else %}
+                  <i class="fas fa-meh text-warning fa-3x"></i>
+                {% endif %}
+              </div>
+              <div>
+                <p class="lead mb-0">The sentiment is:</p>
+                <h2 class="{{ 'text-success' if sentiment == 'Positive' else 
+                            'text-danger' if sentiment == 'Negative' else 
+                            'text-warning' }}">
+                  {{ sentiment }}
+                </h2>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
